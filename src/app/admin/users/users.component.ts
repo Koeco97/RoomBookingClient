@@ -18,17 +18,21 @@ import {UserDetailComponent} from "./user-detail/user-detail.component";
 })
 export class UsersComponent implements OnInit{
 
-  users: Array<User>;
+  users!: Array<User>;
   selectedUser?: User;
 
 
   constructor(private dataService: DataService,
               private route: ActivatedRoute,
               private router: Router) {
-    this.users=dataService.users;
   }
 
   ngOnInit(): void {
+    this.dataService.getUsers().subscribe(
+      next => {
+        this.users = next;
+      }
+    );
     this.route.queryParams.subscribe((params) => {
       const id = params['id'];
       if (id) {
