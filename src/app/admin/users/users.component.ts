@@ -4,6 +4,7 @@ import {User} from "../../model/User";
 import {NgForOf, NgIf} from "@angular/common";
 import {ActivatedRoute, Router} from "@angular/router";
 import {UserDetailComponent} from "./user-detail/user-detail.component";
+import {UserEditComponent} from "./user-edit/user-edit.component";
 
 @Component({
   selector: 'app-users',
@@ -11,7 +12,8 @@ import {UserDetailComponent} from "./user-detail/user-detail.component";
   imports: [
     NgForOf,
     UserDetailComponent,
-    NgIf
+    NgIf,
+    UserEditComponent
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
@@ -20,6 +22,7 @@ export class UsersComponent implements OnInit{
 
   users!: Array<User>;
   selectedUser?: User;
+  action?: string;
 
 
   constructor(private dataService: DataService,
@@ -35,6 +38,7 @@ export class UsersComponent implements OnInit{
     );
     this.route.queryParams.subscribe((params) => {
       const id = params['id'];
+      this.action = params['action']
       if (id) {
         const foundUser = this.users.find(user => user.id === +id); // +id - convert string to a number
         if (foundUser) {
@@ -47,7 +51,12 @@ export class UsersComponent implements OnInit{
 
 
   setUser(id: number){
-    this.router.navigate(['admin','users'], {queryParams : {id: id}})
+    this.router.navigate(['admin','users'], {queryParams : {id: id, action : 'view'}})
+  }
+
+  addUser() {
+    this.selectedUser = new User();
+    this.router.navigate(['admin','users'], {queryParams : {action : 'add'}})
   }
 
 }

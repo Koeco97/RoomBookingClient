@@ -20,6 +20,28 @@ export class DataService {
     return of(this.users);
   }
 
+  updateUser(user: User) : Observable<User>{
+    const  originalUser = this.users.find(u => u.id === user.id);
+    if(originalUser) {
+      originalUser.name = user.name;
+      return of(originalUser)
+    } else {
+      throw new Error('User not found');
+    }
+  }
+
+  addUser(newUser: User, password: String) : Observable<User>{
+    let id = 0;
+    for (const user of this.users) {
+      if(user.id > id){
+        id = user.id;
+      }
+    }
+    newUser.id = id + 1;
+    this.users.push(newUser);
+    return of(newUser);
+  }
+
   constructor() {
     this.rooms = new Array<Room>();
     const room1 = new Room();
