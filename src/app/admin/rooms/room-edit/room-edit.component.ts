@@ -1,7 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Layout, LayoutCapacity, Room} from "../../../model/Room";
-import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import { CommonModule } from '@angular/common';
+import {DataService} from "../../../data.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-room-edit',
@@ -20,23 +22,25 @@ export class RoomEditComponent implements OnInit{
   layouts: (keyof typeof Layout)[] = Object.keys(Layout) as (keyof typeof Layout)[];
   layoutEnum = Layout;
 
-  roomForm = new FormGroup<{
-    roomName: FormControl<string | null>;
-    location: FormControl<string | null>;
-    [key: string]: AbstractControl<any>; // This allows for dynamic keys
-  }>({
-    roomName: new FormControl('roomName'),
-    location: new FormControl('location')
-  });
+  roomForm!: FormGroup;
+
+  constructor(private  formBuilder: FormBuilder,
+              private dataService: DataService,
+              private router: Router) {}
 
   ngOnInit(): void {
-    this.roomForm.patchValue({
-      roomName: this.room.name,
-      location: this.room.location
-    });
+
+    this.roomForm = this.formBuilder.group(
+      {
+        roomName : [this.room.name, Validators.required],
+        location : [this.room.location, [Validators.required, Validators.minLength(2)]],
+      }
+    )
 
     for (const layout of this.layouts){
-      this.roomForm.addControl(`layout${layout}`, new FormControl(`layout${layout}`))
+      const  layoutCapacity = this.room.capacities.find(lc => lc.layout === Layout[layout]);
+      const initialCapacity = layoutCapacity ? layoutCapacity.capacity : 0;
+      this.roomForm.addControl(`layout${layout}`, this.formBuilder.control(initialCapacity));
     }
   }
 
@@ -51,8 +55,19 @@ export class RoomEditComponent implements OnInit{
       this.room.capacities.push(layoutCapacity)
     }
 
-    console.log(this.room);
-    // call a method in a data service to save the room
+    if(this.room.id == null) {
+      this.dataService.addRoom(this.room).subscribe(
+        next => {
+          this.router.navigate(['admin','rooms'], {queryParams: {action: 'view', id : next.id}});
+        }
+      );
+    } else {
+      this.dataService.updateRoom(this.room).subscribe(
+        next => {
+          this.router.navigate(['admin', 'rooms'], {queryParams: {action: 'view', id: next.id}});
+        }
+      );
+    }
   }
 
 }
