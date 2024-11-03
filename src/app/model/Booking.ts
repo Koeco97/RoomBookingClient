@@ -2,7 +2,7 @@ import {Layout, Room} from "./Room";
 import {User} from "./User";
 
 export class Booking {
-  id?: number;
+  id!: number;
   room!: Room;
   user!: User;
   layout!: Layout;
