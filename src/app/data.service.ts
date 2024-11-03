@@ -66,6 +66,30 @@ export class DataService {
     return of(newRoom);
   }
 
+  deleteRoom(id: number) : Observable<any>{
+    const room = this.rooms.find(r => r.id === id);
+    if(room) {
+      this.rooms.splice(this.rooms.indexOf(room), 1);
+      return of(null);
+    } else {
+      throw new Error('Room not found');
+    }
+  }
+
+  deleteUser(id: number) : Observable<any>{
+    const user = this.users.find(u => u.id === id);
+    if(user) {
+      this.users.splice(this.users.indexOf(user), 1);
+      return of(null);
+    } else {
+      throw new Error('User not found');
+    }
+  }
+
+  resetUserPassword(id: number) : Observable<any> {
+    return of(null);
+  }
+
   constructor() {
     this.rooms = new Array<Room>();
     const room1 = new Room();

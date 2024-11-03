@@ -1,9 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {User} from "../../../model/User";
 import {NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DataService} from "../../../data.service";
 import {Router} from "@angular/router";
+import {FormResetService} from "../../../form-reset.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-user-edit',
@@ -15,7 +17,7 @@ import {Router} from "@angular/router";
   templateUrl: './user-edit.component.html',
   styleUrl: './user-edit.component.css'
 })
-export class UserEditComponent implements OnInit{
+export class UserEditComponent implements OnInit, OnDestroy{
 
   @Input()
   user!: User;
@@ -31,11 +33,28 @@ export class UserEditComponent implements OnInit{
   passwordsAreValid = false;
   passwordsMatch = false;
 
+  userResetSubscription!: Subscription;
+
   constructor(private dataService: DataService,
-              private router: Router) {
+              private router: Router,
+              private formResetService: FormResetService) {
   }
 
   ngOnInit(): void {
+    this.initializeForm();
+    this.userResetSubscription = this.formResetService.resetUserFormEvent.subscribe(
+      user => {
+        this.user = user;
+        this.initializeForm();
+      }
+    )
+  }
+
+  ngOnDestroy(): void {
+    this.userResetSubscription.unsubscribe();
+  }
+
+  initializeForm(): void {
     this.formUser = {...this.user}; // creates a shallow copy of this.user
     this.checkIfNameIsValid();
     this.checkIfPasswordsAreValid()

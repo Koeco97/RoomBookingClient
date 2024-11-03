@@ -5,6 +5,7 @@ import {NgFor, NgForOf, NgIf} from "@angular/common";
 import {RoomDetailComponent} from "./room-detail/room-detail.component";
 import {ActivatedRoute, Router} from "@angular/router";
 import {RoomEditComponent} from "./room-edit/room-edit.component";
+import {FormResetService} from "../../form-reset.service";
 
 @Component({
   selector: 'app-rooms',
@@ -27,7 +28,8 @@ export class RoomsComponent implements OnInit{
 
   constructor(private dataService: DataService,
               private route: ActivatedRoute,
-              private router: Router) {
+              private router: Router,
+              private formResetService: FormResetService) {
   }
 
   ngOnInit(): void {
@@ -39,6 +41,7 @@ export class RoomsComponent implements OnInit{
     // this.route.snapshot.queryParams['id']; // accessing a specific param in a single way
     this.route.queryParams.subscribe((params) => {
       const id = params['id'];
+      this.action = '';
       if (id) {
         const foundRoom = this.rooms.find(room => room.id === +id); // +id - convert string to a number
         this.action = params['action'];
@@ -51,6 +54,7 @@ export class RoomsComponent implements OnInit{
       if (params['action'] === 'add') {
         this.selectedRoom = new Room();
         this.action = 'edit';
+        this.formResetService.resetRoomFormEvent.emit(this.selectedRoom);
       }
     });
   }

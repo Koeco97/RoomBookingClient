@@ -1,9 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Layout, LayoutCapacity, Room} from "../../../model/Room";
 import {AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import {DataService} from "../../../data.service";
 import {Router} from "@angular/router";
+import {FormResetService} from "../../../form-reset.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-room-edit',
@@ -14,7 +16,7 @@ import {Router} from "@angular/router";
   templateUrl: './room-edit.component.html',
   styleUrl: './room-edit.component.css'
 })
-export class RoomEditComponent implements OnInit{
+export class RoomEditComponent implements OnInit, OnDestroy{
 
   @Input()
   room!: Room;
@@ -24,12 +26,31 @@ export class RoomEditComponent implements OnInit{
 
   roomForm!: FormGroup;
 
+  resetEventSubscription!: Subscription;
+
   constructor(private  formBuilder: FormBuilder,
               private dataService: DataService,
-              private router: Router) {}
+              private router: Router,
+              private formResetService: FormResetService) {}
+
 
   ngOnInit(): void {
+    this.initializeForm();
+    this.resetEventSubscription = this.formResetService.resetRoomFormEvent.subscribe(
+      room => {
+        this.room = room;
+        this.initializeForm();
+      }
+    );
+  }
 
+  ngOnDestroy(): void {
+    this.resetEventSubscription.unsubscribe();
+  }
+
+  initializeForm(): void {
+
+    console.log('running ngOnInit')
     this.roomForm = this.formBuilder.group(
       {
         roomName : [this.room.name, Validators.required],
