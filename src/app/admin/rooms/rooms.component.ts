@@ -4,6 +4,7 @@ import {Room} from "../../model/Room";
 import {NgFor, NgForOf, NgIf} from "@angular/common";
 import {RoomDetailComponent} from "./room-detail/room-detail.component";
 import {ActivatedRoute, Router} from "@angular/router";
+import {RoomEditComponent} from "./room-edit/room-edit.component";
 
 @Component({
   selector: 'app-rooms',
@@ -12,7 +13,8 @@ import {ActivatedRoute, Router} from "@angular/router";
     NgFor,
     NgForOf,
     RoomDetailComponent,
-    NgIf
+    NgIf,
+    RoomEditComponent
   ],
   templateUrl: './rooms.component.html',
   styleUrl: './rooms.component.css'
@@ -20,7 +22,8 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class RoomsComponent implements OnInit{
 
   rooms!: Array<Room>;
-  selectedRoom?: Room;
+  selectedRoom!: Room;
+  action!: string;
 
   constructor(private dataService: DataService,
               private route: ActivatedRoute,
@@ -38,17 +41,26 @@ export class RoomsComponent implements OnInit{
       const id = params['id'];
       if (id) {
         const foundRoom = this.rooms.find(room => room.id === +id); // +id - convert string to a number
+        this.action = params['action'];
         if (foundRoom) {
           this.selectedRoom = foundRoom;
         } else {
           console.warn(`Room with id ${id} not found.`);
         }
       }
+      if (params['action'] === 'add') {
+        this.selectedRoom = new Room();
+        this.action = 'edit';
+      }
     });
   }
 
   setRoom(id: number){
-    this.router.navigate(['admin','rooms'], {queryParams : {id: id}})
+    this.router.navigate(['admin','rooms'], {queryParams : {id: id, action: 'view'}})
+  }
+
+  addRoom(){
+    this.router.navigate(['admin','rooms'], {queryParams : {action: 'add'}})
   }
 
 }

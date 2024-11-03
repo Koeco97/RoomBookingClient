@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {Room} from "../../../model/Room";
 import {NgForOf} from "@angular/common";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-room-detail',
@@ -15,4 +16,11 @@ export class RoomDetailComponent {
 
   @Input()
   room!: Room;
+
+  constructor(private router: Router) {
+  }
+
+  editRoom(){
+    this.router.navigate(['admin','rooms'], {queryParams: {action: 'edit', id:this.room.id}})
+  }
 }
