@@ -25,6 +25,11 @@ export class UserEditComponent implements OnInit{
   message?: String;
 
   password!: String;
+  password2!: String;
+
+  nameIsValid = false;
+  passwordsAreValid = false;
+  passwordsMatch = false;
 
   constructor(private dataService: DataService,
               private router: Router) {
@@ -32,6 +37,8 @@ export class UserEditComponent implements OnInit{
 
   ngOnInit(): void {
     this.formUser = {...this.user}; // creates a shallow copy of this.user
+    this.checkIfNameIsValid();
+    this.checkIfPasswordsAreValid()
   }
 
   onSubmit() {
@@ -47,6 +54,28 @@ export class UserEditComponent implements OnInit{
           this.router.navigate(['admin', 'users'], {queryParams: {action: 'view', id: user.id}})
         }
       )
+    }
+  }
+
+  checkIfNameIsValid() {
+    if(this.formUser.name) {
+      this.nameIsValid = this.formUser.name.trim().length > 0;
+    } else {
+      this.nameIsValid = false;
+    }
+  }
+
+  checkIfPasswordsAreValid() {
+    if (this.formUser.id != null){
+      this.passwordsAreValid = true;
+      this.passwordsMatch = true;
+    } else {
+      this.passwordsMatch = this.password === this.password2;
+      if (this.password) {
+        this.passwordsAreValid = this.password.trim().length > 0;
+      } else {
+        this.passwordsAreValid = false;
+      }
     }
   }
 }
