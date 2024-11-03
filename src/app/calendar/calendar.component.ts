@@ -1,17 +1,30 @@
 import {Component, OnInit} from '@angular/core';
-import {DatePipe, formatDate} from "@angular/common";
+import {DatePipe, formatDate, NgForOf, NgIf} from "@angular/common";
+import {Booking} from "../model/Booking";
+import {DataService} from "../data.service";
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [
-    DatePipe
+    DatePipe,
+    NgForOf,
+    NgIf
   ],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
-export class CalendarComponent{
+export class CalendarComponent implements OnInit{
 
-  selectedDate = new Date()
+  bookings!: Array<Booking>;
+
+  constructor(private dataService: DataService) {}
+
+  ngOnInit(): void {
+    this.dataService.getBookings().subscribe(
+      next => this.bookings = next
+    )
+  }
+
 
 }
